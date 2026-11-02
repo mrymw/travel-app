@@ -1,25 +1,46 @@
-# TravelApp – Part 04: Auth
+# TravelApp
 
 A trip-planning REST API built with Spring Boot, Spring Data JPA, PostgreSQL and JWT authentication.
-It follows the same structure as FoodApp: **Trip** plays the role of Category and **Activity** plays the role of Recipe.
+Users sign up, log in, plan **trips** (with an optional cover photo) and add **activities** to each trip, day by day.
 
-| FoodApp | TravelApp |
-|---|---|
-| Category (name, description, image) | Trip (name, destination, description, start/end date, cover photo) |
-| Recipe (name, time, portions, ingredients, steps) | Activity (name, day, time, location, cost, notes, booked) |
-| `/api/categories/{id}/recipes` | `/api/trips/{tripId}/activities` |
+## Getting started
+1. Clone the repo and open it in IntelliJ.
+2. Create a PostgreSQL database called `travel`. The app expects it on port `5434`, with user `postgres` and password `12345678`. Change these in `src/main/resources/application.properties` if your setup is different.
+3. Run `TravelApplication`. The tables are created automatically, and the sample data below is added on the first run.
+4. Log in with one of the sample accounts, copy the token, and send it with your requests.
 
-## Setup
-1. Create a PostgreSQL database called `travel` (the app expects it on port `5434`, user `postgres`, password `12345678`; change these in `application.properties`).
-2. Run `TravelApplication`, then open `GET http://localhost:8080/hello` to check it's alive (this one needs a token too).
+## Sample accounts
+The app comes with seed data, so you can start testing straight away:
+
+| Login email | Password | Trips |
+|---|---|---|
+| sara@mail.com | password123 | Winter in Tokyo (6 activities), Weekend in Dubai (3) |
+| ali@mail.com | password123 | Istanbul Food Tour (5), Hiking in Oman (4) |
+| noor@mail.com | password123 | Paris with Family (5) |
+
+Each user only sees their own trips. Try logging in as Sara and asking for one of Ali's trips: you'll get a `404`.
+
+To reset the data, drop the tables (or the `travel` database) and restart the app.
+
+## Project structure
+```
+com.ga.travel
+├── controller   → REST endpoints (UserController, TripController, ActivityController)
+├── service      → business logic (UserService, TripService, ActivityService)
+├── repository   → database access (Spring Data JPA)
+├── model        → entities: User, UserProfile, Trip, Activity
+├── security     → JWT login and request filter
+├── exception    → 404 and 409 errors
+└── seed         → DataSeeder (sample data)
+```
 
 ## Endpoints
 
 ### Auth (public)
 | Method | URL | Body |
 |---|---|---|
-| POST | `/auth/users/register` | `{ "username": "sara", "emailAddress": "sara@mail.com", "password": "secret123" }` |
-| POST | `/auth/users/login` | `{ "email": "sara@mail.com", "password": "secret123" }` → returns the JWT in `message` |
+| POST | `/auth/users/register` | `{ "username": "sara", "emailAddress": "sara@mail.com", "password": "password123" }` |
+| POST | `/auth/users/login` | `{ "email": "sara@mail.com", "password": "password123" }` → returns the JWT in `message` |
 
 Every other request needs the header `Authorization: Bearer <token>`.
 
@@ -41,6 +62,10 @@ Every other request needs the header `Authorization: Bearer <token>`.
 | PUT | `/api/trips/{tripId}/activities/{activityId}` | same shape as POST |
 | DELETE | `/api/trips/{tripId}/activities/{activityId}` | – |
 
+### Health check
+`GET /hello` returns "All good so far, ready for takeoff". It needs a token too, so it's a quick way to check your login works.
+
 ## Error responses
-- `404 Not Found` – trip or activity doesn't exist (or belongs to another user)
-- `409 Conflict` – you already have a trip with that name, or the email is already registered
+- `401 Unauthorized`: missing or invalid token
+- `404 Not Found`: the trip or activity doesn't exist, or belongs to another user
+- `409 Conflict`: you already have a trip with that name, or the email is already registered
