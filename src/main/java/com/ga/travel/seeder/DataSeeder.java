@@ -1,4 +1,4 @@
-package com.ga.travel.seed;
+package com.ga.travel.seeder;
 
 import com.ga.travel.model.Activity;
 import com.ga.travel.model.Trip;
