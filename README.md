@@ -5,7 +5,7 @@ Users sign up, log in, plan **trips** (with an optional cover photo) and add **a
 
 ## Getting started
 1. Clone the repo and open it in IntelliJ.
-2. Create a PostgreSQL database called `travel`. The app expects it on port `5434`, with user `postgres` and password `12345678`. Change these in `src/main/resources/application.properties` if your setup is different.
+2. Create a PostgreSQL database called `travel`. The app expects it on port `5432`, with user `<your user>` and password `<your password>`. Change these in `src/main/resources/application.properties` if your setup is different.
 3. Run `TravelApplication`. The tables are created automatically, and the sample data below is added on the first run.
 4. Log in with one of the sample accounts, copy the token, and send it with your requests.
 
